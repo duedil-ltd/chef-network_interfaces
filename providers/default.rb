@@ -34,6 +34,37 @@ action :save do
     action :nothing
   end
 
+  up = Chef::Recipe::NetworkInterfaces.value(:up, new_resource.device, new_resource, node)
+  pre_up = Chef::Recipe::NetworkInterfaces.value(:pre_up, new_resource.device, new_resource, node)
+  post_up = Chef::Recipe::NetworkInterfaces.value(:post_up, new_resource.device, new_resource, node)
+  down = Chef::Recipe::NetworkInterfaces.value(:down, new_resource.device, new_resource, node)
+  pre_down = Chef::Recipe::NetworkInterfaces.value(:pre_down, new_resource.device, new_resource, node)
+  post_down = Chef::Recipe::NetworkInterfaces.value(:post_down, new_resource.device, new_resource, node)
+
+  if up.kind_of?(String)
+    up = [up]
+  end
+
+  if pre_up.kind_of?(String)
+    pre_up = [pre_up]
+  end
+
+  if post_up.kind_of?(String)
+    post_up = [post_up]
+  end
+
+  if down.kind_of?(String)
+    down = [down]
+  end
+
+  if pre_down.kind_of?(String)
+    pre_down = [pre_down]
+  end
+
+  if post_down.kind_of?(String)
+    post_down = [post_down]
+  end
+
   template "/etc/network/interfaces.d/#{new_resource.device}" do
     cookbook 'network_interfaces'
     source 'interfaces.erb'
@@ -56,12 +87,12 @@ action :save do
       bond_mode:    Chef::Recipe::NetworkInterfaces.value(:bond_mode,  new_resource.device, new_resource, node),
       metric:       Chef::Recipe::NetworkInterfaces.value(:metric,     new_resource.device, new_resource, node),
       mtu:          Chef::Recipe::NetworkInterfaces.value(:mtu,        new_resource.device, new_resource, node),
-      pre_up:       Chef::Recipe::NetworkInterfaces.value(:pre_up,     new_resource.device, new_resource, node),
-      up:           Chef::Recipe::NetworkInterfaces.value(:up,         new_resource.device, new_resource, node),
-      post_up:      Chef::Recipe::NetworkInterfaces.value(:post_up,    new_resource.device, new_resource, node),
-      pre_down:     Chef::Recipe::NetworkInterfaces.value(:pre_down,   new_resource.device, new_resource, node),
-      down:         Chef::Recipe::NetworkInterfaces.value(:down,       new_resource.device, new_resource, node),
-      post_down:    Chef::Recipe::NetworkInterfaces.value(:post_down,  new_resource.device, new_resource, node),
+      pre_up:       pre_up,
+      up:           up,
+      post_up:      post_up,
+      pre_down:     pre_down,
+      down:         down,
+      post_down:    post_down,
       custom:       Chef::Recipe::NetworkInterfaces.value(:custom,     new_resource.device, new_resource, node)
     )
     notifies :run, "execute[if_up #{new_resource.name}]", :immediately
